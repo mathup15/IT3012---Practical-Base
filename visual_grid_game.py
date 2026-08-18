@@ -1,4 +1,5 @@
 # visual_grid_game.py
+from agent import SearchAgent
 import random
 import tkinter as tk
 
@@ -83,7 +84,13 @@ class VisualGridHuntGame:
 
         return {
             'wall_ahead': wall_ahead,
-            'food_here': food_here
+            'food_here': food_here,
+
+            # Global state required by the search agent
+            'agent_pos': tuple(self.agent_pos),
+            'grid_size': (self.width, self.height),
+            'walls': list(self.walls),
+            'all_food': list(self.food_positions)
         }
 
     def execute_action(self, action: str):
@@ -92,7 +99,20 @@ class VisualGridHuntGame:
 
         directions = ['Up', 'Right', 'Down', 'Left']
 
-        if action == 'TurnLeft':
+        if action in directions:
+            direction_changes = {
+                'Up': (0, 1),
+                'Right': (1, 0),
+                'Down': (0, -1),
+                'Left': (-1, 0)
+            }
+
+            self.facing = action
+            dx, dy = direction_changes[action]
+            new_pos[0] += dx
+            new_pos[1] += dy
+
+        elif action == 'TurnLeft':
             current_index = directions.index(self.facing)
             self.facing = directions[(current_index - 1) % 4]
 
@@ -285,7 +305,8 @@ class GridGameGUI:
                                       custom_walls=walls)
             
         self.env.toxic_traps = set()
-        self.agent = ModelBasedAgent()
+        self.agent = SearchAgent()
+        self.agent.active_algo = 'BFS'  
 
         # Dynamically calculate cell size so the total canvas fits nicely within a 600x600 window ceiling
         max_canvas_dim = 600
