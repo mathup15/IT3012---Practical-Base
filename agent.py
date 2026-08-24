@@ -1,6 +1,7 @@
 # agent.py
 import random
 import heapq
+import math
 from collections import deque
 class GreedyGridAgent:
     """A simple agent that tries to move around systematically to clear the grid."""
@@ -129,6 +130,23 @@ class SearchAgent:
 
             if inside_grid and next_state not in walls:
                 yield next_state, action
+    
+    def manhattan_distance(self, pos, goal):
+        """Return Manhattan distance for four-directional movement."""
+        x1, y1 = pos
+        x2, y2 = goal
+
+        return abs(x1 - x2) + abs(y1 - y2)
+
+    def euclidean_distance(self, pos, goal):
+        """Return straight-line Euclidean distance."""
+        x1, y1 = pos
+        x2, y2 = goal
+
+        return math.sqrt(
+            (x1 - x2) ** 2
+            + (y1 - y2) ** 2
+        )
 
     def bfs_search(self, start, goal, walls, grid_size):
         """Breadth-First Search using a FIFO queue."""
@@ -208,6 +226,86 @@ class SearchAgent:
                     )
 
         return None
+    
+    def astar_search(
+        self,
+        start_pos,
+        goal_pos,
+        walls,
+        grid_size,
+        heuristic_type='manhattan'
+    ):
+        """Find a path using A* Search."""
+
+        if heuristic_type.lower() == 'manhattan':
+            heuristic = self.manhattan_distance
+        elif heuristic_type.lower() == 'euclidean':
+            heuristic = self.euclidean_distance
+        else:
+            raise ValueError(
+                f"Unknown heuristic: {heuristic_type}"
+            )
+
+        # Tuple:
+        # (f_cost, g_cost, current_position, path_taken)
+        start_g = 0
+        start_h = heuristic(start_pos, goal_pos)
+        start_f = start_g + start_h
+
+        frontier = [
+            (start_f, start_g, start_pos, [])
+        ]
+
+        # Records the cheapest known g-cost for each position.
+        best_cost = {start_pos: 0}
+        reached_states = set()
+
+        while frontier:
+            f_cost, g_cost, current_pos, path_taken = (
+                heapq.heappop(frontier)
+            )
+
+            if current_pos == goal_pos:
+                return path_taken
+
+            if current_pos in reached_states:
+                continue
+
+            reached_states.add(current_pos)
+
+            for next_pos, action in self.get_successors(
+                current_pos,
+                walls,
+                grid_size
+            ):
+                if next_pos in reached_states:
+                    continue
+
+                new_g = g_cost + 1
+
+                if new_g < best_cost.get(
+                    next_pos,
+                    float('inf')
+                ):
+                    best_cost[next_pos] = new_g
+
+                    new_h = heuristic(
+                        next_pos,
+                        goal_pos
+                    )
+                    new_f = new_g + new_h
+
+                    heapq.heappush(
+                        frontier,
+                        (
+                            new_f,
+                            new_g,
+                            next_pos,
+                            path_taken + [action]
+                        )
+                    )
+
+        return None
 
     def find_closest_food(self, start, food_positions):
         """Choose the food with the smallest Manhattan distance."""
@@ -258,6 +356,14 @@ class SearchAgent:
             elif algorithm == 'UCS':
                 result = self.ucs_search(
                     start, goal, walls, grid_size
+                )
+            elif algorithm == 'ASTAR':
+                result = self.astar_search(
+                    start,
+                    goal,
+                    walls,
+                    grid_size,
+                    heuristic_type='manhattan'
                 )
             else:
                 raise ValueError(

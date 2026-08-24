@@ -48,3 +48,37 @@ UCS selects the path with the lowest total cost. Since every movement costs 1, i
 - Registration number: IT24103717
 - Module: IT3012 - Intelligent Agents
 - Practical: Practical 03
+
+
+---
+
+## Practical 04 - A* Informed Search Agent
+
+Practical 04 extends the goal-based `SearchAgent` by implementing A* Search with heuristic functions.
+
+The following features were implemented:
+
+- Manhattan Distance heuristic
+- Euclidean Distance heuristic
+- A* Search using a priority queue
+- Closest-food goal selection
+- Integration of A* into the agent's decision loop
+- Integration of the A* agent with the visual grid environment
+
+## Heuristic Test Results
+
+The heuristic functions were tested using the start position `(0, 0)` and the goal position `(3, 4)`.
+
+The results were:
+
+- Manhattan Distance: `7`
+- Euclidean Distance: `5.0`
+
+![Heuristic Test Results](screenshots/heuristic-results.png)
+
+## A* Search Implementation
+
+A* Search prioritizes nodes using the following evaluation function:
+
+```text
+f(n) = g(n) + h(n)

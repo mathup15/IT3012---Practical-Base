@@ -306,7 +306,7 @@ class GridGameGUI:
             
         self.env.toxic_traps = set()
         self.agent = SearchAgent()
-        self.agent.active_algo = 'BFS'  
+        self.agent.active_algo = 'AStar' 
 
         # Dynamically calculate cell size so the total canvas fits nicely within a 600x600 window ceiling
         max_canvas_dim = 600
