@@ -82,3 +82,4 @@ A* Search prioritizes nodes using the following evaluation function:
 
 ```text
 f(n) = g(n) + h(n)
+![A* Grid Result](screenshots/astar-grid-result.png)
